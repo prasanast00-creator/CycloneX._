@@ -7,11 +7,57 @@ function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Navigate to dashboard upon form submission
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const url = isSignUp
+    ? "http://localhost:5000/api/auth/signup"
+    : "http://localhost:5000/api/auth/login";
+
+  const body = isSignUp
+    ? {
+        fullName,
+        email,
+        password,
+      }
+    : {
+        email,
+        password,
+      };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.message);
+      return;
+    }
+
+    alert(data.message);
+
+    console.log("Response:", data);
+
     navigate("/dashboard");
-  };
+  } catch (error) {
+    console.error("Request error:", error);
+
+    alert("Unable to connect to server");
+  }
+};
+  
+  
 
   return (
     <div className="auth-page">
@@ -44,7 +90,7 @@ function Auth() {
                 <label>Full Name</label>
                 <div className="input-wrapper">
                   <User size={18} />
-                  <input type="text" placeholder="John Doe" required />
+                  <input type="text" placeholder="John Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
                 </div>
               </div>
             )}
@@ -53,7 +99,7 @@ function Auth() {
               <label>Email Address</label>
               <div className="input-wrapper">
                 <Mail size={18} />
-                <input type="email" placeholder="operator@cyclonex.io" required />
+                <input type="email" placeholder="operator@cyclonex.io" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
             </div>
 
@@ -61,7 +107,7 @@ function Auth() {
               <label>Password</label>
               <div className="input-wrapper">
                 <Lock size={18} />
-                <input type="password" placeholder="••••••••" required />
+                <input type="password" placeholder="••••••••" value={password} onChange={(e)=> setPassword(e.target.value)} required />
               </div>
             </div>
 
