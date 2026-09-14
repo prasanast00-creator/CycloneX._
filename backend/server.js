@@ -8,17 +8,11 @@ dotenv.config();
 
 const app = express();
 
-// =========================
-// MIDDLEWARE
-// =========================
-
 app.use(cors());
 app.use(express.json());
 
-// =========================
-// MONGODB
-// =========================
 
+// MONGODB
 const uri = process.env.MONGODB_URI;
 
 if (!uri) {
@@ -30,7 +24,7 @@ const client = new MongoClient(uri);
 
 let users;
 
-// Connect to MongoDB
+
 async function connectDB() {
   try {
     await client.connect();
@@ -41,7 +35,7 @@ async function connectDB() {
 
     users = db.collection("users");
 
-    // Make email unique
+  
     await users.createIndex(
       { email: 1 },
       { unique: true }
@@ -55,10 +49,8 @@ async function connectDB() {
   }
 }
 
-// =========================
-// SIGNUP
-// =========================
 
+// SIGNUP
 app.post("/api/auth/signup", async (req, res) => {
   try {
     const { fullName, email, password } = req.body;
@@ -72,7 +64,7 @@ app.post("/api/auth/signup", async (req, res) => {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Check if user already exists
+    
     const existingUser = await users.findOne({
       email: normalizedEmail,
     });
@@ -83,10 +75,10 @@ app.post("/api/auth/signup", async (req, res) => {
       });
     }
 
-    // Hash password
+   
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
+  
     const newUser = {
       fullName: fullName.trim(),
       email: normalizedEmail,
@@ -110,10 +102,7 @@ app.post("/api/auth/signup", async (req, res) => {
   }
 });
 
-// =========================
 // LOGIN
-// =========================
-
 app.post("/api/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -127,7 +116,7 @@ app.post("/api/auth/login", async (req, res) => {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Find user
+   
     const user = await users.findOne({
       email: normalizedEmail,
     });
@@ -138,7 +127,7 @@ app.post("/api/auth/login", async (req, res) => {
       });
     }
 
-    // Compare password
+
     const passwordCorrect = await bcrypt.compare(
       password,
       user.password
@@ -169,19 +158,13 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
-// =========================
-// TEST ROUTE
-// =========================
-
+//Routes
 app.get("/", (req, res) => {
   res.json({
     message: "CycloneX backend is running",
   });
 });
 
-// =========================
-// START SERVER
-// =========================
 
 const PORT = process.env.PORT || 5000;
 
